@@ -1,0 +1,19 @@
+{
+  "name": "file-metadata-microservice",
+  "version": "1.0.0",
+  "description": "File Metadata Microservice",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rifkegribenes/file-metadata-microservice.git"
+  },
+  "author": "Sarah Schneider",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rifkegribenes/file-metadata-microservice/issues"
+  },
+  "homepage": "https://github.com/rifkegribenes/file-metadata-microservice#readme"
+}
