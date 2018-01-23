@@ -8,7 +8,10 @@ const cors = require('cors');
 const http = require('http');
 const path = require('path');
 const multer = require('multer');
-const upload = multer({dest:'uploads/'});
+// const upload = multer({dest:'uploads/'});
+const storage = multer.memoryStorage(); // Create memory storage
+const upload = multer({ storage: storage }); // Create middleware with the storage above
+
 
 const app = express();
 app.use(bodyParser.json());
@@ -16,9 +19,20 @@ app.use(cors());
 
 /* ================== ROUTES ================== */
 
-app.post('/upload', upload.single('file'), (req, res, next) => {
-  return res.json(req.file);
-  });
+const type = upload.single('file');
+
+app.post('/upload', type, (req, res, next) => {
+  console.log('upload route');
+  if (req.file) {
+    res.status(200).json({
+      filename: req.file.originalname,
+      size: req.file.size,
+      type: req.file.mimetype
+    });
+  } else {
+    res.status(500).json({ error: `No file was provided in the 'data' field` });
+  }
+});
 
 
 

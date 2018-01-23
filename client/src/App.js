@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import Loader from './Loader';
 
-import dragndrop from './dragndrop';
+// import dragndrop from './dragndrop';
 
 class App extends Component {
   constructor(props) {
@@ -12,22 +13,56 @@ class App extends Component {
       data: '',
       error: false,
       errorMsg: '',
-      loading: false
+      loading: false,
+      percentCompleted: 0
     };
 
     this.upload = this.upload.bind(this);
   }
 
   componentDidMount() {
-    dragndrop(document, window, 0);
+    // dragndrop(document, window, 0);
   }
 
-  upload(e) {
+  upload() {
+    const output = document.getElementById('output');
+    const config = {
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
+        console.log(percentCompleted);
+        const newState = { ...this.state };
+        newState.percentCompleted = percentCompleted;
+        this.setState({ ...newState }, () => {
+          if (this.state.percentCompleted === 100) {
+            console.log('done');
+          }
+        });
+      }
+    };
+    const fileInput = document.getElementById('file');
 
+    if (fileInput.files.length > 0) {
+      console.log('we got a file');
+      console.log(fileInput.files[0]);
+      const data = new FormData();
+      data.append('file', fileInput.files[0]);
+      console.log(data);
+      axios.post('http://localhost:3001/upload', data, config)
+      .then((res) => {
+        output.className = 'card';
+        output.innerHTML = `<pre>{"filename":${res.data.filename},"size":${res.data.size},"type":${res.data.type}}</pre>`;
+      })
+      .catch(function (err) {
+        output.className = 'card error';
+        output.innerHTML = err.message;
+      });
+    } else {
+      console.log('no files uploaded');
+    }
   }
 
   render() {
-    const { activeUpload, error, errorMsg, loading, data } = this.state;
+    const { error, errorMsg, loading, data } = this.state;
     return (
       <div className="App">
         {loading && <Loader />}
@@ -54,39 +89,39 @@ class App extends Component {
               <form
                 action="/upload"
                 method="post"
-                enctype="multipart/form-data"
-                novalidate
+                encType="multipart/form-data"
+                noValidate
                 className="box"
               >
-                <div class="box__input">
-                  <svg class="box__icon" xmlns="http://www.w3.org/2000/svg" width="50" height="43" viewBox="0 0 50 43"><path d="M48.4 26.5c-.9 0-1.7.7-1.7 1.7v11.6h-43.3v-11.6c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v13.2c0 .9.7 1.7 1.7 1.7h46.7c.9 0 1.7-.7 1.7-1.7v-13.2c0-1-.7-1.7-1.7-1.7zm-24.5 6.1c.3.3.8.5 1.2.5.4 0 .9-.2 1.2-.5l10-11.6c.7-.7.7-1.7 0-2.4s-1.7-.7-2.4 0l-7.1 8.3v-25.3c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v25.3l-7.1-8.3c-.7-.7-1.7-.7-2.4 0s-.7 1.7 0 2.4l10 11.6z"/></svg>
+                <div className="box__input">
+                  <svg className="box__icon" xmlns="http://www.w3.org/2000/svg" width="50" height="43" viewBox="0 0 50 43"><path d="M48.4 26.5c-.9 0-1.7.7-1.7 1.7v11.6h-43.3v-11.6c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v13.2c0 .9.7 1.7 1.7 1.7h46.7c.9 0 1.7-.7 1.7-1.7v-13.2c0-1-.7-1.7-1.7-1.7zm-24.5 6.1c.3.3.8.5 1.2.5.4 0 .9-.2 1.2-.5l10-11.6c.7-.7.7-1.7 0-2.4s-1.7-.7-2.4 0l-7.1 8.3v-25.3c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v25.3l-7.1-8.3c-.7-.7-1.7-.7-2.4 0s-.7 1.7 0 2.4l10 11.6z"/></svg>
                   <input
                     type="file"
-                    name="files[]"
+                    name="file"
                     id="file"
-                    class="box__file"
-                    data-multiple-caption="{count} files selected"
-                    multiple
+                    className="box__file"
+                    onChange={() => this.upload()}
                   />
-                  <label for="file">
+                  <label htmlFor="file">
                     <strong>Choose a file</strong>
-                    <span class="box__dragndrop"> or drag it here</span>.
+                    <span className="box__dragndrop"> or drag it here</span>.
                   </label>
-                  <button type="submit" class="box__button">Upload</button>
+                  <button type="submit" className="box__button">Upload</button>
                 </div>
-                <div class="box__uploading">Uploading&hellip;</div>
-                <div class="box__success">Done!
-                  <a href="/upload" class="box__restart" role="button">
+                <div className="box__uploading">Uploading&hellip;</div>
+                <div className="box__success">Done!
+                  <a href="/upload" className="box__restart" role="button">
                     Upload another?
                   </a>
                 </div>
-                <div class="box__error">Error! <span></span>.
-                  <a href="/upload" class="box__restart" role="button">
+                <div className="box__error">Error! <span></span>.
+                  <a href="/upload" className="box__restart" role="button">
                     Try again!</a>
                 </div>
               </form>
             </div>
           </div>
+          <div id="output" />
           {this.state.data &&
             <div className="row">
               <div className={error ? 'card' : 'card results'}>
