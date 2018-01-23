@@ -8,4 +8,4 @@
 
 #### Screenshot:
 
-![image search abstraction layer screenshot](#)
+![file metadata microservice screenshot](#)

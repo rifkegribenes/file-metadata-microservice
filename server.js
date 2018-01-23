@@ -3,19 +3,21 @@
 /* ================== SETUP ================== */
 
 const express = require('express');
-const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const http = require('http');
 const path = require('path');
+const multer = require('multer');
+const upload = multer({dest:'uploads/'});
 
+const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
 /* ================== ROUTES ================== */
 
-app.put('/api/file-size', (req, res, next) => {
-
+app.post('/upload', upload.single('file'), (req, res, next) => {
+  return res.json(req.file);
   });
 
 
@@ -23,7 +25,7 @@ app.put('/api/file-size', (req, res, next) => {
 // set static path
 app.use(express.static(path.join(__dirname, '/client/build/')));
 
-app.get('/', (req, res) => {
+app.get('/', (req, res, next) => {
   res.status(200)
     .sendFile(path.join(__dirname, '../client/build/index.html'));
 });
