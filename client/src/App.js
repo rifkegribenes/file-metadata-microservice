@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import Loader from './Loader';
 
-// import dragndrop from './dragndrop';
-
 class App extends Component {
   constructor(props) {
     super(props);
