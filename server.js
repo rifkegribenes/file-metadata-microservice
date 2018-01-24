@@ -1,39 +1,50 @@
 // server.js
-// where your node app starts
 
-// init project
-var express = require('express');
-var app = express();
+/* ================== SETUP ================== */
 
-// we've started you off with Express, 
-// but feel free to use whatever libs or frameworks you'd like through `package.json`.
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const http = require('http');
+const path = require('path');
+const multer = require('multer');
+// const upload = multer({dest:'uploads/'});
+const storage = multer.memoryStorage(); // Create memory storage
+const upload = multer({ storage: storage }); // Create middleware with the storage above
 
-// http://expressjs.com/en/starter/static-files.html
-app.use(express.static('public'));
 
-// http://expressjs.com/en/starter/basic-routing.html
-app.get("/", function (request, response) {
-  response.sendFile(__dirname + '/views/index.html');
+const app = express();
+app.use(bodyParser.json());
+app.use(cors());
+
+/* ================== ROUTES ================== */
+
+const type = upload.single('file');
+
+app.post('/upload', type, (req, res, next) => {
+  console.log('upload route');
+  if (req.file) {
+    res.status(200).json({
+      filename: req.file.originalname,
+      size: req.file.size,
+      type: req.file.mimetype
+    });
+  } else {
+    res.status(500).json({ error: `No file was provided in the 'data' field` });
+  }
 });
 
-app.get("/dreams", function (request, response) {
-  response.send(dreams);
+
+
+// set static path
+app.use(express.static(path.join(__dirname, '/client/build/')));
+
+app.get('/', (req, res, next) => {
+  res.status(200)
+    .sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 
-// could also use the POST body instead of query string: http://expressjs.com/en/api.html#req.body
-app.post("/dreams", function (request, response) {
-  dreams.push(request.query.dream);
-  response.sendStatus(200);
-});
-
-// Simple in-memory store for now
-var dreams = [
-  "Find and count some sheep",
-  "Climb a really tall mountain",
-  "Wash the dishes"
-];
-
-// listen for requests :)
-var listener = app.listen(process.env.PORT, function () {
-  console.log('Your app is listening on port ' + listener.address().port);
-});
+const server = http.createServer(app);
+const port = process.env.PORT || 3001;
+app.set('port', port);
+server.listen(port, () => console.log(`Server listening on localhost:${port}`));
