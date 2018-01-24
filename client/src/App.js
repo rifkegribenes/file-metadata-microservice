@@ -9,50 +9,97 @@ class App extends Component {
     super(props);
 
     this.state = {
+      baseURL: 'http://localhost:3001', // change when deploy to glitch
       activeUpload: false,
       data: '',
       error: false,
       errorMsg: '',
       loading: false,
-      percentCompleted: 0
+      percentCompleted: 0,
+      output: false,
     };
 
     this.upload = this.upload.bind(this);
   }
 
   componentDidMount() {
-    // dragndrop(document, window, 0);
+    // add drag & drop support
+    const form = document.getElementById('form');
+    form.classList.remove('is-error', 'is-success');
+    const events = ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop'];
+    events.forEach((event) => {
+      form.addEventListener(event, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+    ['dragover', 'dragenter'].forEach((event) => {
+      form.addEventListener(event, () => {
+        form.classList.add('is-dragover');
+      });
+    });
+    ['dragleave', 'dragend', 'drop'].forEach((event) => {
+      form.addEventListener(event, () => {
+        form.classList.remove('is-dragover');
+      });
+    });
+    form.addEventListener('drop', (e) => {
+      this.upload(e.dataTransfer.files[0]);
+    });
+
+    // Firefox focus bug fix for file input
+    const input = document.getElementById('file');
+    input.addEventListener('focus', () => { input.classList.add('has-focus'); });
+    input.addEventListener('blur', () => { input.classList.remove('has-focus'); });
   }
 
-  upload() {
+  reset(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('form').classList.remove('is-error', 'is-success', 'is-uploading');
+    const newState = { ...this.state }
+    newState.output = false;
+    newState.data = '';
+    this.setState(newState);
+  }
+
+  upload(droppedFile) {
+    const form = document.getElementById('form');
+    form.classList.remove('is-error', 'is-success');
+    if (form.classList.contains('is-uploading')) return false;
+    form.classList.add('is-uploading');
     const output = document.getElementById('output');
     const config = {
       onUploadProgress: (progressEvent) => {
         const percentCompleted = Math.round( (progressEvent.loaded * 100) / progressEvent.total );
-        console.log(percentCompleted);
         const newState = { ...this.state };
         newState.percentCompleted = percentCompleted;
         this.setState({ ...newState }, () => {
           if (this.state.percentCompleted === 100) {
-            console.log('done');
+            form.classList.remove('is-uploading');
           }
         });
       }
     };
     const fileInput = document.getElementById('file');
 
-    if (fileInput.files.length > 0) {
-      console.log('we got a file');
-      console.log(fileInput.files[0]);
+    if (fileInput.files.length > 0 || droppedFile) {
+      const file = fileInput.files[0] || droppedFile;
       const data = new FormData();
-      data.append('file', fileInput.files[0]);
-      console.log(data);
-      axios.post('http://localhost:3001/upload', data, config)
+      data.append('file', file);
+      axios.post(`${this.state.baseURL}/upload`, data, config)
       .then((res) => {
-        output.className = 'card';
-        output.innerHTML = `<pre>{"filename":${res.data.filename},"size":${res.data.size},"type":${res.data.type}}</pre>`;
+        form.classList.add('is-success');
+        const newState = { ...this.state }
+        newState.output = true;
+        newState.data = res.data;
+        this.setState(newState);
       })
       .catch(function (err) {
+        form.classList.add('is-error');
+        form.classList.remove('is-uploading');
+        const errorMsg = form.querySelector('.box__error span');
+        errorMsg.textContent = err.message;
         output.className = 'card error';
         output.innerHTML = err.message;
       });
@@ -87,11 +134,12 @@ class App extends Component {
           <div className="row">
             <div className="card">
               <form
-                action="/upload"
+                action={`${this.state.baseURL}/upload`}
                 method="post"
                 encType="multipart/form-data"
                 noValidate
-                className="box"
+                className="box has-advanced-upload"
+                id="form"
               >
                 <div className="box__input">
                   <svg className="box__icon" xmlns="http://www.w3.org/2000/svg" width="50" height="43" viewBox="0 0 50 43"><path d="M48.4 26.5c-.9 0-1.7.7-1.7 1.7v11.6h-43.3v-11.6c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v13.2c0 .9.7 1.7 1.7 1.7h46.7c.9 0 1.7-.7 1.7-1.7v-13.2c0-1-.7-1.7-1.7-1.7zm-24.5 6.1c.3.3.8.5 1.2.5.4 0 .9-.2 1.2-.5l10-11.6c.7-.7.7-1.7 0-2.4s-1.7-.7-2.4 0l-7.1 8.3v-25.3c0-.9-.7-1.7-1.7-1.7s-1.7.7-1.7 1.7v25.3l-7.1-8.3c-.7-.7-1.7-.7-2.4 0s-.7 1.7 0 2.4l10 11.6z"/></svg>
@@ -109,30 +157,44 @@ class App extends Component {
                   <button type="submit" className="box__button">Upload</button>
                 </div>
                 <div className="box__uploading">Uploading&hellip;</div>
-                <div className="box__success">Done!
-                  <a href="/upload" className="box__restart" role="button">
+                <div className="box__success">Done!<br/ >
+                  <button
+                    className="box__restart card__action"
+                    onClick={(e) => this.reset(e)}
+                    >
                     Upload another?
-                  </a>
+                  </button>
                 </div>
                 <div className="box__error">Error! <span></span>.
-                  <a href="/upload" className="box__restart" role="button">
-                    Try again!</a>
+                  <button
+                    className="box__restart card__action"
+                    onClick={(e) => this.reset(e)}
+                    >
+                    Try Again?
+                  </button>
                 </div>
               </form>
             </div>
           </div>
-          <div id="output" />
-          {this.state.data &&
+          <div
+            id="output"
+            className={this.state.output ? 'card left' : 'hidden'}
+          >
+            <h3 className="card__title center">File Metadata</h3>
+            <pre>
+              &#123;<br />
+              &nbsp;&nbsp;"filename": {data.filename},<br />
+              &nbsp;&nbsp;"size": {data.size},<br />
+              &nbsp;&nbsp;"type": {data.type}<br />
+              &#125;
+            </pre>
+          </div>
+          {error &&
             <div className="row">
-              <div className={error ? 'card' : 'card results'}>
-                {error ?
+              <div className="card">
                   <div className="center error">
                     {errorMsg}
-                  </div> :
-                  <div className="json">
-                    <pre>{data}</pre>
                   </div>
-                }
               </div>
             </div>
           }

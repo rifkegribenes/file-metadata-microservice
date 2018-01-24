@@ -32,8 +32,11 @@ header {
 
 .center {
   text-align: center;
-  color: white;
   width: 100%;
+}
+
+.left {
+	text-align: left;
 }
 
 .row {
@@ -90,9 +93,6 @@ header {
   font-weight: 700;
   cursor: pointer;
   border-radius: 0 3px 3px 0;
-  position: absolute;
-  top: 0;
-  right: 0;
   padding-top: 20.4px;
   padding-bottom: 20.4px;
   padding-left: 28.8px;
@@ -103,10 +103,10 @@ header {
   display: inline-block;
   text-align: center;
   vertical-align: middle;
-  margin: 0;
+  margin-top: 20px;
   text-transform: uppercase;
-  -webkit-box-shadow: 0 0 0 1px #1a2a6c;
-  box-shadow: 0 0 0 1px #1a2a6c;
+  -webkit-box-shadow: 0 0 0 1px #ee0979;
+  box-shadow: 0 0 0 1px #ee0979;
   text-rendering: optimizelegibility;
   border: 0 !important;
   font-weight: 700;
@@ -114,6 +114,7 @@ header {
 }
 
 .card__action:hover {
+	color: white;
   -webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.4);
   -moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.4);
   box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.4);
@@ -262,10 +263,8 @@ ul {
 	text-align: left;
 }
 
-#upload_actions {
-	position: relative;
-  top: -80px;
-  left: 19px;
+pre {
+	font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
 }
 
 .gray {
@@ -365,33 +364,10 @@ ul {
 
 
 @media (max-width: 480px) {
-  #uploadButton, .card__action {
-    position: static;
-    margin-top: 20px;
-    width: 100%;
-    border-radius: 3px;
-  }
 
-  #upload_actions {
-    position: relative;
-    top: 0px;
-    left: 0px;
-  }
-
-  .close {
-    top: -144px;
-    right: -1px;
-  }
 }
 
 /* ======================================  */
-
-body {
-	font-family: Roboto, sans-serif;
-	color: #0f3c4b;
-	background-color: #e5edf1;
-	padding: 5rem 1.25rem; /* 80 20 */
-}
 
 .container {
 	width: 100%;
@@ -448,15 +424,17 @@ body {
 	color: #39bfd3;
 }
 
+/* drag & drop css from https://css-tricks.com/examples/DragAndDropFileUploading/ */
+
 .box {
 	font-size: 1.25rem; /* 20 */
-	background-color: #c8dadf;
+	background-color: rgba(253, 72, 58, .4);
 	position: relative;
 	padding: 100px 20px;
 }
 
 .box.has-advanced-upload {
-	outline: 2px dashed #92b0b3;
+	outline: 2px dashed #FD483A;
 	outline-offset: -10px;
 	-webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
 	transition: outline-offset .15s ease-in-out, background-color .15s linear;
@@ -464,7 +442,7 @@ body {
 
 .box.is-dragover {
 	outline-offset: -20px;
-	outline-color: #c8dadf;
+	outline-color: #FD483A;
 	background-color: #fff;
 }
 
@@ -480,7 +458,7 @@ body {
 .box.has-advanced-upload .box__icon {
 	width: 100%;
 	height: 80px;
-	fill: #92b0b3;
+	fill: #FD483A;
 	display: block;
 	margin-bottom: 40px;
 }
@@ -534,12 +512,7 @@ body {
 	font-weight: 700;
 }
 
-.box__restart:focus,
-.box__restart:hover {
-	color: #39bfd3;
-}
-
-.js .box__file {
+.box__file {
 	width: 0.1px;
 	height: 0.1px;
 	opacity: 0;
@@ -548,7 +521,7 @@ body {
 	z-index: -1;
 }
 
-.js .box__file + label {
+.box__file + label {
 	max-width: 80%;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -557,24 +530,16 @@ body {
 	overflow: hidden;
 }
 
-.js .box__file + label:hover strong,
+.box__file + label:hover strong,
 .box__file:focus + label strong,
 .box__file.has-focus + label strong {
-	color: #39bfd3;
+	color: #FD483A;
 }
 
-.js .box__file:focus + label,
-.js .box__file.has-focus + label {
+.box__file:focus + label,
+.box__file.has-focus + label {
 	outline: 1px dotted #000;
 	outline: -webkit-focus-ring-color auto 5px;
-}
-
-.no-js .box__file + label {
-	display: none;
-}
-
-.no-js .box__button {
-	display: block;
 }
 
 .box__button {
