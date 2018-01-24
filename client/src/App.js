@@ -163,7 +163,7 @@ class App extends Component {
                     Upload another?
                   </button>
                 </div>
-                <div className="box__error">Error! <span></span>.
+                <div className="box__error">Error! <span></span>.<br/ >
                   <button
                     className="box__restart card__action"
                     onClick={(e) => this.reset(e)}
