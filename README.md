@@ -8,4 +8,4 @@
 
 #### Screenshot:
 
-![file metadata microservice screenshot](#)
+![file metadata microservice screenshot](https://raw.githubusercontent.com/rifkegribenes/file-metadata-microservice/master/Screenshot%202018-01-23%2016.40.16.png)

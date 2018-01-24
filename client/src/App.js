@@ -138,7 +138,7 @@ class App extends Component {
                 method="post"
                 encType="multipart/form-data"
                 noValidate
-                className="box has-advanced-upload"
+                className="box"
                 id="form"
               >
                 <div className="box__input">
