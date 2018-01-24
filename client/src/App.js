@@ -7,7 +7,7 @@ class App extends Component {
     super(props);
 
     this.state = {
-      baseURL: 'http://localhost:3001', // change when deploy to glitch
+      baseURL: window.location.origin,
       activeUpload: false,
       data: '',
       error: false,
